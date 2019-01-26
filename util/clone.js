@@ -1,15 +1,39 @@
 export function deepClone(obj) {
-  if (typeof obj !== "object") {
-    return;
+  if (!obj || typeof obj !== "object") {
+    return obj;
   }
-  const copied = obj instanceof Array ? [] : {};
-  for (let key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      copied[key] =
-        typeof obj[key] === "object" ? deepClone(obj[key]) : obj[key];
+  // DOM node
+  if (obj.nodeType && "cloneNode" in obj) {
+    return obj.cloneNode(true);
+  }
+
+  var _toString = String.prototype.toString;
+
+  if (_toString.call(obj) === "[object Date]") {
+    return new Date(obj.getTime());
+  }
+
+  if (_toString.call(obj) === "[object RegExp]") {
+    var flags = [];
+    if (obj.global) {
+      flags.push("g");
     }
+    if (obj.multiline) {
+      flags.push("m");
+    }
+    if (obj.ignoreCase) {
+      flags.push("i");
+    }
+    return new RegExp(obj.source, flags.join(""));
   }
-  return copied;
+
+  var result = Array.isArray(obj) ? [] : {};
+
+  for (var key in obj) {
+    result[key] = deepClone(obj[key]);
+  }
+
+  return result;
 }
 
 export function shallowClone(obj) {
