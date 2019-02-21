@@ -177,3 +177,160 @@ declare var $: (string) => any;
  * @types 的使用方式很简单，直接用 npm 安装对应的声明模块即可，以 jQuery 举例：
  * npm install @types/jquery --save-dev
 */
+
+
+// 泛型
+function createArray<T>(length: number, value: T): Array<T> {
+    let result: T[] = [];
+    for (let i = 0; i < length; i++) {
+        result[i] = value;
+    }
+    return result;
+}
+
+createArray<string>(3, 'x'); // ['x', 'x', 'x']
+
+// 多个类型参数
+function swap<T, U>(tuple: [T, U]): [U, T] {
+    return [tuple[1], tuple[0]];
+}
+swap([1, '2']);
+
+// 泛型约束
+/**
+ * 在函数内部使用泛型的时候，由于事先不知道它是哪种类型，所以不能随意的操作它的属性和方法
+ * function loggingIdentity<T>(arg: T): T {
+    console.log(arg.length);
+    return arg;
+    }   // index.ts(2,19): error TS2339: Property 'length' does not exist on type 'T'.
+ */
+
+// --> 泛型约束，只允许这个函数传入那些包含length属性的变量：
+interface lengthwise {
+    length: number;
+}
+
+function loggingIdentity<T extends lengthwise>(arg: T): T {
+    console.log(arg.length);
+    return arg;
+}
+
+// 多个类型参数之间也可以相互约束
+
+function copyFields<T extends U, U>(target: T, source: U): T {
+    for (let id in source) {
+        target[id] = (<T>source)[id];
+    }
+    return target;
+}
+// 泛型接口
+
+interface CreateArrFunc<T> {
+    (length: number, value: T): Array<T>
+}
+
+let createArr: CreateArrFunc<any>;
+
+createArr = function <T>(length: number, value: T): Array<T> {
+    let result: T[] = [];
+    for (let i = 0; i < length; i++) {
+        result[i] = value;
+    }
+    return result;
+}
+
+//  泛型类
+class GenericClass<T = string> {
+    zeroValue: T;
+    add: (x: T, y: T) => T;
+}
+
+let c = new GenericClass<number>();
+c.zeroValue = 0;
+c.add = function (x, y) {
+    return x + y;
+};
+
+// 泛型参数支持默认类型
+function createArrayDef<T = string>(length: number, value: T): Array<T> {
+    let result: T[] = [];
+    for (let i = 0; i < length; i++) {
+        result[i] = value;
+    }
+    return result;
+}
+
+
+// 声明合并：
+// 如果定义了两个相同名字的函数，接口或类，那么它们会合并成一个类型：
+
+/** 
+ * function 的合并： 使用重载定义多个函数类型
+ */
+function _reverse(x: number): number;
+function _reverse(x: string): string;
+function _reverse(x: number | string): number | string {
+    if (typeof x === 'number') {
+        return Number(x.toString().split('').reverse().join(''));
+    } else if (typeof x === 'string') {
+        return x.split('').reverse().join('');
+    }
+}
+
+/**
+ * 接口的合并
+ */
+
+interface Alarm {
+    price: number;
+}
+interface Alarm {
+    weight: string;
+}
+
+// 相当于：
+interface Alarm {
+    price: number;
+    weight: string;
+}
+// !!! 合并的属性的类型必须是唯一的：
+// 类型不一致，会报错
+
+interface Alarm {
+    price: number;
+}
+interface Alarm {
+    price: number;  // 虽然重复了，但是类型都是 `number`，所以不会报错
+    weight: string;
+}
+interface Alarm {
+    price: number;
+}
+/**
+    interface Alarm {
+        price: string;  // 类型不一致，会报错
+        weight: string;
+    }
+ */
+
+// 接口中方法的合并，与函数的合并一样：
+
+interface Alarm {
+    price: number;
+    alerts(s: string): string;
+}
+
+interface Alarm {
+    weight: string;
+    alerts(s: string, n: number): string;
+}
+// ==>
+interface Alarm {
+    price: number;
+    weight: string;
+    alert(s: string): string;
+    alert(s: string, n: number): string;
+}
+
+// 类的合并
+// 类的合并与接口的合并规则一致。
