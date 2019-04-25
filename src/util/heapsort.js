@@ -15,7 +15,12 @@ function heapSort(A) {
 function swap(arr, i, j) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
 }
-
+// 将 i 结点以下的堆整理为大顶堆，注意这一步实现的基础实际上是：
+// 假设 结点 i 以下的子堆已经是一个大顶堆，shiftDown函数实现的
+// 功能是实际上是：找到 结点 i 在包括结点 i 的堆中的正确位置。后面
+// 将写一个 for 循环，从第一个非叶子结点开始，对每一个非叶子结点
+// 都执行 shiftDown操作，所以就满足了结点 i 以下的子堆已经是一大
+//顶堆
 function shiftDown(A, i, length) {
     let temp = A[i]; // 当前父节点
     // j<length 的目的是对结点 i 以下的结点全部做顺序调整
