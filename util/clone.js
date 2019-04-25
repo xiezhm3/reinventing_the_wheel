@@ -1,4 +1,5 @@
 export function deepClone(obj) {
+  // undefined, null, function, non-object(primitive value)
   if (!obj || typeof obj !== "object") {
     return obj;
   }
