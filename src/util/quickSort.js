@@ -1,31 +1,29 @@
-function qs(arr, l, r) {
-    let partitionIndex, p;
-    if (l < r) {
-        p = r;
-        partitionIndex = partition(arr, p, l, r);
-
-        qs(arr, l, partitionIndex - 1);
-        qs(arr, partitionIndex + 1, r);
+function quickSort(arr, left, right) {
+    const index = partition(arr, left, right);
+    if (left < index - 1) {
+        quickSort(arr, left, index - 1);
+    }
+    if (index < right) {
+        quickSort(arr, index, right);
     }
 }
 
-function partition(arr, p, l, r) {
-    // p equals to r here
-    let partitionIndex = l;
-    for (let i = l; i < r; i++) {
-        if (arr[i] < arr[p]) {
-            swap(arr, i, partitionIndex);
-            partitionIndex++;
+function partition(arr, left, right) {
+    let i = left,
+        j = right;
+    const pivot = arr(left + (right - left) / 2);
+    while (i <= j) {
+        while (i < j && arr[i] < pivot) {
+            i++;
+        }
+        while (i < j && arr[j] > pivot) {
+            j--;
+        }
+        if (i <= j) {
+            swap(arr, i, j);
+            i++;
+            i--;
         }
     }
-    swap(arr, r, partitionIndex);
-    return partitionIndex;
+    return i;
 }
-
-function swap(arr, i, j) {
-    const temp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = temp;
-}
-
-module.export = qs;
